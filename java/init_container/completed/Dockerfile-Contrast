@@ -1,0 +1,60 @@
+#### Builder Image ####
+FROM alpine:3.14.1 as builder
+
+# Install dependencies
+RUN apk --no-cache add gnupg
+
+# Build ARGs
+ARG CONTRAST_AGENT_VERSION
+ARG BASE_REPO=https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent
+
+# Download Contrast Agent, PGP Signature and Checksums
+ADD ${BASE_REPO}/${CONTRAST_AGENT_VERSION}/contrast-agent-${CONTRAST_AGENT_VERSION}.jar /tmp/contrast/contrast-agent.jar
+ADD ${BASE_REPO}/${CONTRAST_AGENT_VERSION}/contrast-agent-${CONTRAST_AGENT_VERSION}.jar.sha1 /tmp/contrast/contrast-agent.jar.sha1
+ADD ${BASE_REPO}/${CONTRAST_AGENT_VERSION}/contrast-agent-${CONTRAST_AGENT_VERSION}.jar.asc /tmp/contrast/contrast-agent.jar.asc
+ADD ${BASE_REPO}/${CONTRAST_AGENT_VERSION}/contrast-agent-${CONTRAST_AGENT_VERSION}.jar.asc.sha1 /tmp/contrast/contrast-agent.jar.asc.sha1
+
+# Verify Agent and PGP Signature Integrity
+RUN echo "`cat /tmp/contrast/contrast-agent.jar.sha1` */tmp/contrast/contrast-agent.jar" >> contrast_agent_checksum
+RUN sha1sum -c contrast_agent_checksum
+RUN echo "`cat /tmp/contrast/contrast-agent.jar.asc.sha1` */tmp/contrast/contrast-agent.jar.asc" >> contrast_pgp_checksum
+RUN sha1sum -c contrast_pgp_checksum
+
+# Verify Agent PGP Signature
+RUN gpg2 --keyserver pgp.key-server.io --receive-keys 34D84B137E8F1053
+RUN echo 1AAD9AFB3FC5CCA6940D021534D84B137E8F1053:6: | gpg --batch --import-ownertrust
+RUN gpg2 --verify /tmp/contrast/contrast-agent.jar.asc /tmp/contrast/contrast-agent.jar
+
+#### Final Image ####
+FROM alpine:3.14.1
+
+# Build ARGs
+ARG CONTRAST_AGENT_VERSION
+ARG BUILD_DATE
+ARG COMMIT_HASH
+
+LABEL maintainer="support@contrastsecurity.com"
+
+# OCI Annotations: https://github.com/opencontainers/image-spec/blob/master/annotations.md
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
+LABEL org.opencontainers.image.authors="support@contrastsecurity.com"
+LABEL org.opencontainers.image.url="https://hub.docker.com/u/contrast/java-agent"
+LABEL org.opencontainers.image.documentation="https://hub.docker.com/u/contrast/java-agent"
+LABEL org.opencontainers.image.source="https://github.com/..."
+LABEL org.opencontainers.image.version="${CONTRAST_AGENT_VERSION}"
+LABEL org.opencontainers.image.revision="${COMMIT_HASH}"
+LABEL org.opencontainers.image.vendor="Contrast Security"
+LABEL org.opencontainers.image.licenses="Apache-2.0"
+# LABEL org.opencontainers.image.ref.name=""
+LABEL org.opencontainers.image.title="Contrast Java Agent"
+LABEL org.opencontainers.image.description="A Docker image containing the Contrast Java Agent"
+# LABEL org.opencontainers.image.base.digest=""
+LABEL org.opencontainers.image.base.name="hub.docker.com/_/alpine:3.14.1"
+
+# Copy agent and supporting files from builder image
+COPY --from=builder /tmp/contrast /opt/contrast
+
+# Set Contrast Annotations.
+LABEL com.contrastsecurity.contrast-agent.version="${CONTRAST_AGENT_VERSION}"
+
+CMD [ "echo", "Copying /opt/contrast to shared volume. Please copy the contents of /opt/contrast to the application container."]

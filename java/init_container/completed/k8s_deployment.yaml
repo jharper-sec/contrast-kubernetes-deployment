@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: webgoat
+  name: webgoat
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webgoat
+  template:
+    metadata:
+      labels:
+        app: webgoat
+    spec:
+      containers:
+        - name: webgoat
+          image: "contrast/webgoat:8.1.0"
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              cpu: 1024m
+              memory: 1024Mi
+            requests:
+              cpu: 1024m
+              memory: 1024Mi

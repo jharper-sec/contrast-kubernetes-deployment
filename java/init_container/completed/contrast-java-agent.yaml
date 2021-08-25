@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webgoat
+spec:
+  template:
+    spec:
+      containers:
+        - name: webgoat
+          volumeMounts:
+            - name: contrast-agent-src
+              mountPath: /opt/contrast
+            - name: contrast-security
+              mountPath: /root/contrast_security.yaml
+              subPath: contrast_security.yaml
+          env:
+            - name: JAVA_TOOL_OPTIONS
+              value: -javaagent:/opt/contrast/contrast-agent.jar -Dcontrast.config.path=/root/contrast_security.yaml
+      initContainers:
+        - name: init-contrast-agent
+          image: contrast/java-agent:3.8.7.21531
+          volumeMounts:
+            - name: contrast-agent-src
+              mountPath: /opt/tmp
+          command: ["cp", "-r", "/opt/contrast/.", "/opt/tmp"]
+      volumes:
+        - name: contrast-agent-src
+          emptyDir: {}
+        - name: contrast-security
+          secret:
+            secretName: contrast-security
+            items:
+            - key: contrast_security.yaml
+              path: contrast_security.yaml

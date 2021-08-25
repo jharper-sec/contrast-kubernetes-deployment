@@ -1,0 +1,9 @@
+FROM openjdk:11-jdk
+
+# Artifact versions
+ARG WEBGOAT_VERSION=8.1.0
+
+# Download WebGoat
+ADD "https://github.com/WebGoat/WebGoat/releases/download/v${WEBGOAT_VERSION}/webgoat-server-${WEBGOAT_VERSION}.jar" /app/webgoat.jar
+
+ENTRYPOINT [ "java", "-jar", "/app/webgoat.jar", "--server.port=8080", "--server.address=0.0.0.0" ]
