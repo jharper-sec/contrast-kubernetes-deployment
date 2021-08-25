@@ -24,11 +24,11 @@ Deploying using an init container is the most scalable of the above options. It 
 # Languages Implemented
 The following table provides an overview and links to examples that are currently implemented by language.
 
-| Language               | App Image     | Base Image     | Init Container                                  |
-| --------               | ------------- | -------------- | ----------------------------------------------- |
-| [Java](java/README.md) | No            | No             | [**Yes**](java/init_container/README.md)        |
-| .NET Core              | No            | No             | No                                              |
-| Node.js                | No            | No             | No                                              |
-| Ruby                   | No            | No             | No                                              |
-| Python                 | No            | No             | No                                              |
-| Golang                 | No            | No             | No                                              |
+| Language     | App Image     | Base Image     | Init Container                 |
+| --------     | ------------- | -------------- | ------------------------------ |
+| [Java](java) | No            | No             | [**Yes**](java/init_container) |
+| .NET Core    | No            | No             | No                             |
+| Node.js      | No            | No             | No                             |
+| Ruby         | No            | No             | No                             |
+| Python       | No            | No             | No                             |
+| Golang       | No            | No             | No                             |
