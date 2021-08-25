@@ -51,7 +51,6 @@ secretGenerator:
 ## Building Images
 You first need to build the images locally, as these are not currently deployed to an image repository. The `docker` folder contains the image manifests. The following command will build the `contrast/webgoat` application image and the `contrast/java-agent` agent image.
 ```bash
-cd completed
 ./docker/build_images.sh
 ```
 
