@@ -15,7 +15,28 @@ spec:
               subPath: contrast_security.yaml
           env:
             - name: JAVA_TOOL_OPTIONS
-              value: -javaagent:/opt/contrast/contrast-agent.jar -Dcontrast.config.path=/opt/contrast/contrast_security.yaml
+              value: -javaagent:/opt/contrast/contrast-agent.jar
+            - name: CONTRAST__AGENT__JAVA__STANDALONE_APP_NAME
+              value: webgoat
+            - name: CONTRAST_CONFIG_PATH
+              value: /opt/contrast/contrast_security.yaml
+            - name: CONTRAST__AGENT__JAVA__SCAN_ALL_CLASSES
+              value: "false"
+            - name: CONTRAST__AGENT__JAVA__SCAN_ALL_CODE_SOURCES
+              value: "false"
+            - name: CONTRAST__AGENT__LOGGER__STDOUT
+              value: "true"
+            - name: CONTRAST__AGENT__LOGGER__LEVEL
+              value: INFO
+            - name: CONTRAST__SERVER__ENVIRONMENT
+              value: QA
+          resources:
+            limits:
+              cpu: 1024m
+              memory: 1536Mi
+            requests:
+              cpu: 1024m
+              memory: 1536Mi
       initContainers:
         - name: init-contrast-agent
           image: contrast/java-agent:3.8.7.21531
